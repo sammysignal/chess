@@ -84,7 +84,7 @@ def can_take_on(board, sq_let, sq_num, white):
 # no other pieces on the board
 #   def get_theoretical_piece_moves(board, sq_num, sq_let):
 
-def get_legal_piece_moves(board, sq_let, sq_num):
+def get_possible_moves(board, sq_let, sq_num):
 
 	piece = board[sq_let][sq_num]
 	white_turn = (piece[0] == 'w')
@@ -98,23 +98,23 @@ def get_legal_piece_moves(board, sq_let, sq_num):
 		for num in it_d:
 			if board[sq_let][num]:
 				if can_take_on(board, sq_let, num, white_turn):
-					moveable_squares.append(sq_let + str(sq_num))	
+					moveable_squares.append(sq_let + str(num))	
 				break
 			else:
-				moveable_squares.append(sq_let)
+				moveable_squares.append(sq_let + str(num))
 
 		# iterate up. Constant letter index.
 		it_u = range(sq_num + 1, 9)
 		for num in it_u:
 			if board[sq_let][num]:
 				if can_take_on(board, sq_let, num, white_turn):
-					moveable_squares.append(sq_let + str(sq_num))	
+					moveable_squares.append(sq_let + str(num))	
 				break
 			else:
-				moveable_squares.append(sq_let)
+				moveable_squares.append(sq_let + str(num))
 
 		# iterate left. Constant number index.
-		it_l = (letter.split(sq_let))[0][::-1]
+		it_l = (letters.split(sq_let))[0][::-1]
 		for ch in it_l:
 			if board[ch][sq_num]:
 				if can_take_on(board, ch, sq_num, white_turn):
@@ -124,7 +124,7 @@ def get_legal_piece_moves(board, sq_let, sq_num):
 				moveable_squares.append(ch + str(sq_num))
 
 		# iterate right. Constant number index.
-		it_r = (letter.split(sq_let))[0]
+		it_r = (letters.split(sq_let))[1]
 		for ch in it_r:
 			if board[ch][sq_num]:
 				if can_take_on(board, ch, sq_num, white_turn):
@@ -133,12 +133,40 @@ def get_legal_piece_moves(board, sq_let, sq_num):
 			else:
 				moveable_squares.append(ch + str(sq_num))
 
+		return moveable_squares
+
+
 	elif p == 'N':
-		pass
+		# [letter delta, number delta]
+		deltas = [[1, 2], [2, 1], [2, -1], [1, -2], [-1, -2], [-2, -1], [-2, 1], [-1, 2]]
+		for d in deltas:
+			new_l = chr(ord(sq_let) + d[0])
+			new_n = sq_num + d[1]
+			if (new_l in letters) and new_n in range(1, 9)):
+				moveable_squares.appned()
 	elif p == 'B':
-		pass
+		deltas_ur = []
+		deltas_dr = []
+		deltas_dl = []
+		deltas_ul = []
+		for i in range(1, 8):
+			deltas.append([i, i])
+			deltas.append([i, -i])
+			deltas.append([-i, -i])
+			deltas.append([-i, i])
+		for d in deltas:
+			new_l = chr(ord(sq_let) + d[0])
+			new_n = sq_num + d[1]
+			if (new_l in letters) and new_n in range(1, 9)):
+				moveable_squares.appned()
 	elif p == 'Q':
-		pass
+		b = board
+		symbol = 'w' if white else 'b'
+		b[sq_let][sq_num] = symbol + 'R'
+		r_moves = get_possible_moves(b, sq_let, sq_num)
+		b[sq_let][sq_num] = symbol + 'B'
+		b_moves = get_possible_moves(b, sq_let, sq_num)
+		return r_moves + b_moves
 	elif p == 'K':
 		pass
 	elif p == 'p':
@@ -147,8 +175,11 @@ def get_legal_piece_moves(board, sq_let, sq_num):
 		raise Exception("This square is empty.")
 
 
-def black_is_mated(board, r_l):
+def is_mated(board, r_l, white):
 	pass
 
-print_board(empty_board())
+
+
+
+
 
