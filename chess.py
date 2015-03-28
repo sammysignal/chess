@@ -26,23 +26,28 @@ def initialize_board():
 
 
 def print_board(board):
-	buf = "\n"
-	for i in range(8):
+	buf = "\n  "
+	for i in range(25):
 		buf = buf + '_'
 	buf = buf + '\n'
+
 	for i in range(8, 0, -1):
 		for let in letters:
+			if let == 'a':
+				buf = buf + str(i) + ' '
 			cell = board[let][i]
 			if not cell:
 				buf = buf + '|  '
 			else:
-				buf = buf + '|' + board[let][i]
+				buf = buf + '|' + cell
 		buf = buf + '|\n'
-
-	for i in range(8):
-		buf = buf + '_'
+	buf = buf + '  '
+	for i in range(25):
+		buf = buf + '-'
+	buf = buf + '\n   '
+	for let in letters:
+		buf = buf + let + '  '
 	buf = buf + '\n'
-	
 	sys.stdout.write(buf)
 
 def get_legal_piece_moves(board, sq_num, sq_let):
