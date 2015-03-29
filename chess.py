@@ -33,6 +33,8 @@ def initialize_board():
 
 	return board, royal_loc
 
+def square_is_black(let, num):
+	return (((ord(let) + num) % 2) == 1)
 
 def print_board(board):
 	buf = "\n  "
@@ -46,7 +48,10 @@ def print_board(board):
 				buf = buf + str(i) + ' '
 			cell = board[let][i]
 			if not cell:
-				buf = buf + '|  '
+				if square_is_black(let, i):
+					buf = buf + '|::'
+				else:
+					buf = buf + '|  '
 			else:
 				buf = buf + '|' + cell
 		buf = buf + '|\n'
@@ -64,6 +69,8 @@ def print_board(board):
 # is a king, then cannot take.
 def can_take_on(board, sq_let, sq_num, white):
 	p = board[sq_let][sq_num]
+	if p == "":
+		raise Exception("Tried to capture on an empty square")
 	if white:
 		if p[0] == 'w':
 			return False
@@ -84,7 +91,10 @@ def can_take_on(board, sq_let, sq_num, white):
 # no other pieces on the board
 #   def get_theoretical_piece_moves(board, sq_num, sq_let):
 
-def get_possible_moves(board, sq_let, sq_num):
+# Gets possible moves, disregarding check. requires a prev
+# (previous move location) to check for en passant.
+
+def get_possible_moves(board, sq_let, sq_num, prev, prev_prev):
 	piece = board[sq_let][sq_num]
 	white_turn = (piece[0] == 'w')
 	moveable_squares = []
@@ -142,7 +152,12 @@ def get_possible_moves(board, sq_let, sq_num):
 			new_l = chr(ord(sq_let) + d[0])
 			new_n = sq_num + d[1]
 			if (new_l in letters) and (new_n in range(1, 9)):
-				moveable_squares.appned(new_l + str(new_n))
+				if board[new_l][new_n]:
+					if can_take_on(board, new_l, new_n, white_turn):
+						moveable_squares.append(new_l + str(new_n))
+				else:
+					moveable_squares.append(new_l + str(new_n))
+		return moveable_squares
 	elif p == 'B':
 		deltas_ur = []
 		deltas_dr = []
@@ -167,7 +182,7 @@ def get_possible_moves(board, sq_let, sq_num):
 						moveable_squares.append(new_l + str(new_n))
 		return moveable_squares
 
-	# Same as all of the moves a rook and a bishob combined could make.
+	# Same as all of the moves a rook and a bishop combined could make.
 	# a pretty chessy solution.
 	elif p == 'Q':
 		b = board
@@ -180,7 +195,12 @@ def get_possible_moves(board, sq_let, sq_num):
 	elif p == 'K':
 		pass
 	elif p == 'p':
-		pass
+		if white_turn:
+			if (sq_num + 1) in range(1, 9):
+				ahead = board[sq_let][sq_num + 1]
+				if not ahead:
+					moveable_squares.append(sq_let + str(sq_num))
+
 	else:
 		raise Exception("This square is empty.")
 
@@ -191,16 +211,20 @@ def is_mated(board, r_l, white):
 def in_check(board, white):
 	pass
 
+def play_computer():
+	pass
 
-a = empty_board()
-a['e'][4] = 'bR'
-a['f'][4] = 'bp'
-a['d'][4] = 'bp'
-a['e'][5] = 'bp'
-a['e'][3] = 'bp'
+def play_opponent():
+	pass
+
+
+a, b = initialize_board()
+
+a['e'][2] = ""
+a['e'][4] = 'wp'
 print_board(a)
 
-print get_possible_moves(a, 'e', 4)
+print get_possible_moves(a, 'b', 1, "", "")
 
 
 
