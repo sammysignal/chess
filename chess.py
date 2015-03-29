@@ -71,7 +71,7 @@ def can_take_on(board, sq_let, sq_num, white):
 			if p[1] == 'K':
 				raise Exception("White allowed to take black King.")
 			else:
-				return False
+				return True
 	else:
 		if p[0] == 'b':
 			return False
@@ -85,7 +85,6 @@ def can_take_on(board, sq_let, sq_num, white):
 #   def get_theoretical_piece_moves(board, sq_num, sq_let):
 
 def get_possible_moves(board, sq_let, sq_num):
-
 	piece = board[sq_let][sq_num]
 	white_turn = (piece[0] == 'w')
 	moveable_squares = []
@@ -142,26 +141,37 @@ def get_possible_moves(board, sq_let, sq_num):
 		for d in deltas:
 			new_l = chr(ord(sq_let) + d[0])
 			new_n = sq_num + d[1]
-			if (new_l in letters) and new_n in range(1, 9)):
-				moveable_squares.appned()
+			if (new_l in letters) and (new_n in range(1, 9)):
+				moveable_squares.appned(new_l + str(new_n))
 	elif p == 'B':
 		deltas_ur = []
 		deltas_dr = []
 		deltas_dl = []
 		deltas_ul = []
 		for i in range(1, 8):
-			deltas.append([i, i])
-			deltas.append([i, -i])
-			deltas.append([-i, -i])
-			deltas.append([-i, i])
+			deltas_ur.append([i, i])
+			deltas_dr.append([i, -i])
+			deltas_dl.append([-i, -i])
+			deltas_ul.append([-i, i])
+		deltas = [deltas_ur, deltas_dr, deltas_dl, deltas_ul]
 		for d in deltas:
-			new_l = chr(ord(sq_let) + d[0])
-			new_n = sq_num + d[1]
-			if (new_l in letters) and new_n in range(1, 9)):
-				moveable_squares.appned()
+			for poss in d:
+				new_l = chr(ord(sq_let) + poss[0])
+				new_n = sq_num + poss[1]
+				if (new_l in letters) and (new_n in range(1, 9)):
+					if board[new_l][new_n]:
+						if can_take_on(board, new_l, new_n, white_turn):
+							moveable_squares.append(new_l + str(new_n))	
+						break
+					else:
+						moveable_squares.append(new_l + str(new_n))
+		return moveable_squares
+
+	# Same as all of the moves a rook and a bishob combined could make.
+	# a pretty chessy solution.
 	elif p == 'Q':
 		b = board
-		symbol = 'w' if white else 'b'
+		symbol = 'w' if white_turn else 'b'
 		b[sq_let][sq_num] = symbol + 'R'
 		r_moves = get_possible_moves(b, sq_let, sq_num)
 		b[sq_let][sq_num] = symbol + 'B'
@@ -178,8 +188,19 @@ def get_possible_moves(board, sq_let, sq_num):
 def is_mated(board, r_l, white):
 	pass
 
+def in_check(board, white):
+	pass
 
 
+a = empty_board()
+a['e'][4] = 'bR'
+a['f'][4] = 'bp'
+a['d'][4] = 'bp'
+a['e'][5] = 'bp'
+a['e'][3] = 'bp'
+print_board(a)
+
+print get_possible_moves(a, 'e', 4)
 
 
 
