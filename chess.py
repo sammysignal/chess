@@ -75,18 +75,12 @@ def can_take_on(board, sq_let, sq_num, white):
 		if p[0] == 'w':
 			return False
 		else:
-			if p[1] == 'K':
-				raise Exception("White allowed to take black King.")
-			else:
-				return True
+			return True
 	else:
 		if p[0] == 'b':
 			return False
 		else:
-			if p[1] == 'K':
-				raise Exception("Black allowed to take white King.")
-			else:
-				return True
+			return True
 # Where a given piece could move if there were
 # no other pieces on the board
 #   def get_theoretical_piece_moves(board, sq_num, sq_let):
@@ -94,7 +88,7 @@ def can_take_on(board, sq_let, sq_num, white):
 # Gets possible moves, disregarding check. requires a prev
 # (previous move location) to check for en passant.
 
-def get_possible_moves(board, sq_let, sq_num, prev, prev_prev):
+def get_possible_moves(board, sq_let, sq_num, prev=None, prev_prev=None):
 	piece = board[sq_let][sq_num]
 	white_turn = (piece[0] == 'w')
 	moveable_squares = []
@@ -200,6 +194,7 @@ def get_possible_moves(board, sq_let, sq_num, prev, prev_prev):
 				ahead = board[sq_let][sq_num + 1]
 				if not ahead:
 					moveable_squares.append(sq_let + str(sq_num))
+
 
 	else:
 		raise Exception("This square is empty.")
