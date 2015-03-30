@@ -128,7 +128,7 @@ def can_take_on(board, sq_let, sq_num, white):
 # Gets possible moves, disregarding check. requires a prev
 # (previous move location) to check for en passant.
 
-def get_possible_moves(board, sq_let, sq_num, prev=None, prev_prev=None):
+def get_possible_moves(board, sq_let, sq_num, ep=None):
 	piece = board[sq_let][sq_num]
 	white_turn = (piece[0] == 'w')
 	moveable_squares = []
@@ -241,9 +241,17 @@ def get_possible_moves(board, sq_let, sq_num, prev=None, prev_prev=None):
 	elif p == 'p':
 		if white_turn:
 			if (sq_num + 1) in range(1, 9):
+				#Directly forward
 				ahead = board[sq_let][sq_num + 1]
 				if not ahead:
 					moveable_squares.append(sq_let + str(sq_num + 1))
+
+				# Two squares forward, if from first rank
+				two_ahead = board[sq_let][sq_num + 2]
+				if (not ahead) and (not two_ahead) and (sq_num == 2):
+					moveable_squares.append(sq_let + str(sq_num + 2))
+
+				# Taking diagonally
 				front_left = chr(ord(sq_let) - 1) + str(sq_num + 1)
 				if front_left[0] in letters:
 					val = lookup(board, front_left)
@@ -258,16 +266,27 @@ def get_possible_moves(board, sq_let, sq_num, prev=None, prev_prev=None):
 							moveable_squares.append(front_right)
 				right_neighbor = chr(ord(sq_let) + 1) + str(sq_num)
 				left_neighbor = chr(ord(sq_let) - 1) + str(sq_num)
-				if prev and prev_prev:
-					if (prev == right_neighbor) and (not prev_prev == front_right) and (lookup(board, right_neighbor)[1] == 'p'):
+
+				# En passant
+				if ep:
+					if ep == right_neighbor:
 						moveable_squares.append(front_right)
-					if (prev == left_neighbor) and (not prev_prev == front_left) and (lookup(board, left_neighbor)[1] == 'p'):
+					if ep == left_neighbor:
 						moveable_squares.append(front_left)
+
 		else:
 			if (sq_num - 1) in range(1, 9):
+				#Directly forward
 				ahead = board[sq_let][sq_num - 1]
 				if not ahead:
 					moveable_squares.append(sq_let + str(sq_num - 1))
+				
+				# Two squares forward, if from first rank
+				two_ahead = board[sq_let][sq_num - 2]
+				if (not ahead) and (not two_ahead) and (sq_num == 7):
+					moveable_squares.append(sq_let + str(sq_num - 2))
+
+				# Taking diagonally
 				front_left = chr(ord(sq_let) + 1) + str(sq_num - 1)
 				if front_left[0] in letters:
 					val = lookup(board, front_left)
@@ -282,10 +301,12 @@ def get_possible_moves(board, sq_let, sq_num, prev=None, prev_prev=None):
 							moveable_squares.append(front_right)
 				right_neighbor = chr(ord(sq_let) - 1) + str(sq_num)
 				left_neighbor = chr(ord(sq_let) + 1) + str(sq_num)
-				if prev and prev_prev:
-					if (prev == right_neighbor) and (not prev_prev == front_right) and (lookup(board, right_neighbor)[1] == 'p'):
+
+				# En passant
+				if ep:
+					if ep == right_neighbor:
 						moveable_squares.append(front_right)
-					if (prev == left_neighbor) and (not prev_prev == front_left) and (lookup(board, left_neighbor)[1] == 'p'):
+					if ep == left_neighbor:
 						moveable_squares.append(front_left)
 		return moveable_squares
 
@@ -311,7 +332,7 @@ def in_check(board, white):
 # Iterate through every single potential move.
 # if still in check after every one of those moves,
 # then it is checkmate.
-def is_mated(board, white):
+def is_mated(board, white, ep=None):
 	color = 'w' if white else 'b'
 	for letter in letters:
 		for num in range(1, 9):
@@ -319,7 +340,7 @@ def is_mated(board, white):
 			val = lookup(board, address)
 			if val:
 				if val[0] == color:
-					for m in get_possible_moves(board, letter, num):
+					for m in get_possible_moves(board, letter, num, ep):
 						test_board = copy.deepcopy(board)
 						b = move(test_board, address, m)
 						if not in_check(b, white):
@@ -341,10 +362,20 @@ def play_opponent():
 
 def test_get_moves_pawn():
 	a = initialize_board()
+	poss = get_possible_moves(a, 'e', 2)
+	assert(set(poss) == set(['e3', 'e4']))
 	a = move(a, 'e2', 'e5')
 	a = move(a, 'd7', 'd5')
-	print_board(a)
-	#print get_possible_moves(board, 'e', 5, )
+	poss = get_possible_moves(a, 'e', 5, 'd5')
+	assert(set(poss) == set(['d6', 'e6']))
+
+def test_get_moves_knight():
+	a = initialize_board()
+	poss = get_possible_moves(a, 'b', 1)
+	assert(set(poss) == set(['a3', 'c3']))
+	a = move(a, 'b1', 'c3')
+	poss = get_possible_moves(a, 'c', 3)
+	assert(set(poss) == set(['a4', 'b5', 'd5', 'e4', 'b1']))
 
 
 def test_is_mated():
@@ -367,6 +398,7 @@ def test_is_mated():
 
 def run_tests():
 	test_get_moves_pawn()
+	test_get_moves_knight()
 	test_is_mated()
 	print "All tests passed."
 
