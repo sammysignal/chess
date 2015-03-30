@@ -44,12 +44,13 @@ def square_lookup(board, piece):
 	for letter in letters:
 		for num in range(1, 9):
 			p = board[letter][num]
-			if p[1] == 'p':
-				pawns = pawns + 1
-				pawn_loc = p
-			else:
-				if p == piece:
-					return (letter + str(num))
+			if p:
+				if p[1] == 'p':
+					pawns = pawns + 1
+					pawn_loc = p
+				else:
+					if p == piece:
+						return (letter + str(num))
 	if piece[1] == 'p':
 		if pawns == 1:
 			return pawn_loc
@@ -245,12 +246,16 @@ def get_possible_moves(board, sq_let, sq_num, prev=None, prev_prev=None):
 					moveable_squares.append(sq_let + str(sq_num + 1))
 				front_left = chr(ord(sq_let) - 1) + str(sq_num + 1)
 				if front_left[0] in letters:
-					if lookup(board, front_left)[0] == 'b':
-						moveable_squares.append(front_left)
+					val = lookup(board, front_left)
+					if val:
+						if val[0] == 'b':
+							moveable_squares.append(front_left)
 				front_right = chr(ord(sq_let) + 1) + str(sq_num + 1)
 				if front_right[0] in letters:
-					if lookup(board, front_right)[0] == 'b':
-						moveable_squares.append(front_right)
+					val = lookup(board, front_right)
+					if val:
+						if val[0] == 'b':
+							moveable_squares.append(front_right)
 				right_neighbor = chr(ord(sq_let) + 1) + str(sq_num)
 				left_neighbor = chr(ord(sq_let) - 1) + str(sq_num)
 				if prev and prev_prev:
@@ -265,12 +270,16 @@ def get_possible_moves(board, sq_let, sq_num, prev=None, prev_prev=None):
 					moveable_squares.append(sq_let + str(sq_num - 1))
 				front_left = chr(ord(sq_let) + 1) + str(sq_num - 1)
 				if front_left[0] in letters:
-					if lookup(board, front_left)[0] == 'b':
-						moveable_squares.append(front_left)
+					val = lookup(board, front_left)
+					if val:
+						if val[0] == 'w':
+							moveable_squares.append(front_left)
 				front_right = chr(ord(sq_let) - 1) + str(sq_num - 1)
 				if front_right[0] in letters:
-					if lookup(board, front_right)[0] == 'b':
-						moveable_squares.append(front_right)
+					val = lookup(board, front_right)
+					if val:
+						if val[0] == 'w':
+							moveable_squares.append(front_right)
 				right_neighbor = chr(ord(sq_let) - 1) + str(sq_num)
 				left_neighbor = chr(ord(sq_let) + 1) + str(sq_num)
 				if prev and prev_prev:
@@ -308,9 +317,10 @@ def is_mated(board, white):
 		for num in range(1, 9):
 			address = letter + str(num)
 			if lookup(board, address)[0] == color:
-				for move in get_possible_moves(board, letter, num):
+				for m in get_possible_moves(board, letter, num):
 					test_board = copy.copy(board)
-					b = move(test_board, address, move)
+					print address, m
+					b = move(test_board, address, m)
 					if not in_check(b, white):
 						return False
 	return True
@@ -323,14 +333,29 @@ def play_opponent():
 	pass
 
 
-a = initialize_board()
-a = move(a, 'e2', 'e4')
-a = move(a, 'e7', 'e6')
-a = move(a, 'f2', 'f4')
-a = move(a, 'd8', 'h4')
-print_board(a)
+#############
+## Testing ##
+#############
 
-print in_check(a, True)
+
+def test_get_moves_pawn():
+	pass
+
+def test_is_mated():
+	a = initialize_board()
+	a = move(a, 'f2', 'f4')
+	a = move(a, 'e7', 'e6')
+	a = move(a, 'g2', 'g4')
+	a = move(a, 'd8', 'h4')
+	print_board(a)
+	assert(in_check(a, True) == True)
+	assert(is_mated(a, True) == True)
+
+
+def run_tests():
+	test_get_moves_pawn()
+	test_is_mated()
+	print "All tests passed."
 
 
 
