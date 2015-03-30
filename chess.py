@@ -98,7 +98,7 @@ def move(board, fro, to):
 	p = board[fro[0]][int(fro[1])]
 	if not p:
 		raise Exception("No piece to move on this square.")
-	new_board = copy.copy(board)
+	new_board = copy.deepcopy(board)
 	new_board[fro[0]][int(fro[1])] = ""
 	new_board[to[0]][int(to[1])] = p
 	return new_board
@@ -316,13 +316,14 @@ def is_mated(board, white):
 	for letter in letters:
 		for num in range(1, 9):
 			address = letter + str(num)
-			if lookup(board, address)[0] == color:
-				for m in get_possible_moves(board, letter, num):
-					test_board = copy.copy(board)
-					print address, m
-					b = move(test_board, address, m)
-					if not in_check(b, white):
-						return False
+			val = lookup(board, address)
+			if val:
+				if val[0] == color:
+					for m in get_possible_moves(board, letter, num):
+						test_board = copy.deepcopy(board)
+						b = move(test_board, address, m)
+						if not in_check(b, white):
+							return False
 	return True
 
 
@@ -339,15 +340,27 @@ def play_opponent():
 
 
 def test_get_moves_pawn():
-	pass
+	a = initialize_board()
+	a = move(a, 'e2', 'e5')
+	a = move(a, 'd7', 'd5')
+	print_board(a)
+	#print get_possible_moves(board, 'e', 5, )
+
 
 def test_is_mated():
 	a = initialize_board()
 	a = move(a, 'f2', 'f4')
+	assert(in_check(a, True) == False)
+	assert(is_mated(a, True) == False)
+	assert(in_check(a, False) == False)
+	assert(is_mated(a, False) == False)
 	a = move(a, 'e7', 'e6')
 	a = move(a, 'g2', 'g4')
+	assert(in_check(a, True) == False)
+	assert(is_mated(a, True) == False)
+	assert(in_check(a, False) == False)
+	assert(is_mated(a, False) == False)
 	a = move(a, 'd8', 'h4')
-	print_board(a)
 	assert(in_check(a, True) == True)
 	assert(is_mated(a, True) == True)
 
@@ -356,6 +369,9 @@ def run_tests():
 	test_get_moves_pawn()
 	test_is_mated()
 	print "All tests passed."
+
+
+run_tests()
 
 
 
