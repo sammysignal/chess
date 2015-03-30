@@ -1,4 +1,4 @@
-import sys
+import sys, copy
 
 letters = "abcdefgh"
 pieces = ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
@@ -33,8 +33,12 @@ def initialize_board():
 
 	return board, royal_loc
 
+
 def square_is_black(let, num):
 	return (((ord(let) + num) % 2) == 1)
+
+def lookup(board, square):
+	return board[square[0]][int(square[1])]
 
 def print_board(board):
 	buf = "\n  "
@@ -64,6 +68,16 @@ def print_board(board):
 	buf = buf + '\n'
 	sys.stdout.write(buf)
 
+# Makes move and returns new board. completely disregards check or 
+# color rules.
+def move(board, fro, to):
+	p = board[fro[0]][int(fro[1])]
+	if not p:
+		raise Exception("No piece to move on this square.")
+	board[fro[0]][int(fro[1])] = ""
+	board[to[0]][int(to[1])] = p
+	return board
+
 # takes a board, a turn, and a square. If the piece on the square
 # is not the same color as the piece making the move, or the piece
 # is a king, then cannot take.
@@ -81,6 +95,7 @@ def can_take_on(board, sq_let, sq_num, white):
 			return False
 		else:
 			return True
+
 # Where a given piece could move if there were
 # no other pieces on the board
 #   def get_theoretical_piece_moves(board, sq_num, sq_let):
@@ -187,24 +202,93 @@ def get_possible_moves(board, sq_let, sq_num, prev=None, prev_prev=None):
 		b_moves = get_possible_moves(b, sq_let, sq_num)
 		return r_moves + b_moves
 	elif p == 'K':
-		pass
+		deltas = [[-1, 1], [0, 1], [1, 1], [1, 0], [1, -1], [0, -1], [-1, -1], [-1, 0]]
+		for d in deltas:
+			if (chr(ord(sq_let) + d[0])) in letters and (sq_num + d[1]) in range(1, 9):
+				sq = (chr(ord(sq_let) + d[0])) + str(sq_num + d[1])
+				val = lookup(board, sq)
+				if val:
+					if can_take_on(board, sq[0], int(sq[1]), white_turn):
+						moveable_squares.append(sq)
+				else:
+					moveable_squares.append(sq)
+		return moveable_squares
 	elif p == 'p':
 		if white_turn:
 			if (sq_num + 1) in range(1, 9):
 				ahead = board[sq_let][sq_num + 1]
 				if not ahead:
-					moveable_squares.append(sq_let + str(sq_num))
-
+					moveable_squares.append(sq_let + str(sq_num + 1))
+				front_left = chr(ord(sq_let) - 1) + str(sq_num + 1)
+				if front_left[0] in letters:
+					if lookup(board, front_left)[0] == 'b':
+						moveable_squares.append(front_left)
+				front_right = chr(ord(sq_let) + 1) + str(sq_num + 1)
+				if front_right[0] in letters:
+					if lookup(board, front_right)[0] == 'b':
+						moveable_squares.append(front_right)
+				right_neighbor = chr(ord(sq_let) + 1) + str(sq_num)
+				left_neighbor = chr(ord(sq_let) - 1) + str(sq_num)
+				if prev and prev_prev:
+					if (prev == right_neighbor) and (not prev_prev == front_right) and (lookup(board, right_neighbor)[1] == 'p'):
+						moveable_squares.append(front_right)
+					if (prev == left_neighbor) and (not prev_prev == front_left) and (lookup(board, left_neighbor)[1] == 'p'):
+						moveable_squares.append(front_left)
+		else:
+			if (sq_num - 1) in range(1, 9):
+				ahead = board[sq_let][sq_num - 1]
+				if not ahead:
+					moveable_squares.append(sq_let + str(sq_num - 1))
+				front_left = chr(ord(sq_let) + 1) + str(sq_num - 1)
+				if front_left[0] in letters:
+					if lookup(board, front_left)[0] == 'b':
+						moveable_squares.append(front_left)
+				front_right = chr(ord(sq_let) - 1) + str(sq_num - 1)
+				if front_right[0] in letters:
+					if lookup(board, front_right)[0] == 'b':
+						moveable_squares.append(front_right)
+				right_neighbor = chr(ord(sq_let) - 1) + str(sq_num)
+				left_neighbor = chr(ord(sq_let) + 1) + str(sq_num)
+				if prev and prev_prev:
+					if (prev == right_neighbor) and (not prev_prev == front_right) and (lookup(board, right_neighbor)[1] == 'p'):
+						moveable_squares.append(front_right)
+					if (prev == left_neighbor) and (not prev_prev == front_left) and (lookup(board, left_neighbor)[1] == 'p'):
+						moveable_squares.append(front_left)
+		return moveable_squares
 
 	else:
 		raise Exception("This square is empty.")
 
 
-def is_mated(board, r_l, white):
-	pass
+def in_check(board, r_l, white):
+	color = 'w' if white else 'b'
+	opp_color = 'b' if white else 'w'
+	king = color + 'K'
+	king_loc = r_l[king]
+	for letter in letters:
+		for num in range(1, 9):
+			address = letter + str(num)
+			if lookup(board, address)[0] == opp_color:
+				if king_loc in get_possible_moves(board, letter, num):
+					return True
+	return False
 
-def in_check(board, white):
-	pass
+# Iterate through every single potential move.
+# if still in check after every one of those moves,
+# then it is checkmate.
+def is_mated(board, r_l, white):
+	color = 'w' if white else 'b'
+	for letter in letters:
+		for num in range(1, 9):
+			address = letter + str(num)
+			if lookup(board, address)[0] == color:
+				for move in get_possible_moves(board, letter, num):
+					test_board = copy.copy(board)
+					b = move(test_board, address, move)
+					if not in_check(b, r_l, white):
+						return False
+	return True
+	
 
 def play_computer():
 	pass
@@ -219,7 +303,7 @@ a['e'][2] = ""
 a['e'][4] = 'wp'
 print_board(a)
 
-print get_possible_moves(a, 'b', 1, "", "")
+print get_possible_moves(a, 'e', 1, "", "")
 
 
 
