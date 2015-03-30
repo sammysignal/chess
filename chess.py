@@ -362,7 +362,10 @@ def test_get_moves_pawn():
 	a = initialize_board()
 	poss = get_possible_moves(a, 'e', 2)
 	assert(set(poss) == set(['e3', 'e4']))
-	a = move(a, 'e2', 'e5')
+	a = move(a, 'e2', 'e3')
+	poss = get_possible_moves(a, 'e', 3)
+	assert(poss == ['e4'])
+	a = move(a, 'e3', 'e5')
 	a = move(a, 'd7', 'd5')
 	poss = get_possible_moves(a, 'e', 5, 'd5')
 	assert(set(poss) == set(['d6', 'e6']))
@@ -376,7 +379,6 @@ def test_get_moves_knight():
 	assert(set(poss) == set(['a4', 'b5', 'd5', 'e4', 'b1']))
 	a = move(a, 'c3', 'd5')
 	poss = get_possible_moves(a, 'd', 5)
-	print_board(a)
 	assert(set(poss) == set(['e7', 'f6', 'f4', 'e3', 'c3', 'b4', 'b6', 'c7']))
 
 def test_get_moves_bishop():
