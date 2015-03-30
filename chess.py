@@ -470,6 +470,8 @@ def test_is_mated():
 	assert(in_check(a, True) == True)
 	assert(is_mated(a, True) == True)
 
+# A move is considered legal if after doing it
+# the player is no longer in check.
 def test_get_legal_moves():
 	a = empty_board()
 	a['c'][4] = 'wK'
