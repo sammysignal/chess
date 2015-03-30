@@ -28,10 +28,8 @@ def initialize_board():
 	# Add black pawns to board
 	for i in range(len(letters)):
 		board[letters[i]][7] = 'bp'
-	
-	royal_loc = {'wQ':'d1', 'wK':'e1', 'bQ':'d8', 'bK':'e8'}
 
-	return board, royal_loc
+	return board
 
 
 def square_is_black(let, num):
@@ -39,6 +37,31 @@ def square_is_black(let, num):
 
 def lookup(board, square):
 	return board[square[0]][int(square[1])]
+
+def square_lookup(board, piece):
+	pawns = 0
+	pawn_loc = ''
+	for letter in letters:
+		for num in range(1, 9):
+			p = board[letter][num]
+			if p[1] == 'p':
+				pawns = pawns + 1
+				pawn_loc = p
+			else:
+				if p == piece:
+					return (letter + str(num))
+	if piece[1] == 'p':
+		if pawns == 1:
+			return pawn_loc
+		if pawns == 0:
+			raise Exception("There aren't any pawns, you twat")
+		if pawns > 1:
+			raise Exception("There are multiple pawns, you twat")
+	else:
+		return ""
+		
+
+
 
 def print_board(board):
 	buf = "\n  "
@@ -74,9 +97,10 @@ def move(board, fro, to):
 	p = board[fro[0]][int(fro[1])]
 	if not p:
 		raise Exception("No piece to move on this square.")
-	board[fro[0]][int(fro[1])] = ""
-	board[to[0]][int(to[1])] = p
-	return board
+	new_board = copy.copy(board)
+	new_board[fro[0]][int(fro[1])] = ""
+	new_board[to[0]][int(to[1])] = p
+	return new_board
 
 # takes a board, a turn, and a square. If the piece on the square
 # is not the same color as the piece making the move, or the piece
@@ -260,23 +284,25 @@ def get_possible_moves(board, sq_let, sq_num, prev=None, prev_prev=None):
 		raise Exception("This square is empty.")
 
 
-def in_check(board, r_l, white):
+def in_check(board, white):
 	color = 'w' if white else 'b'
 	opp_color = 'b' if white else 'w'
 	king = color + 'K'
-	king_loc = r_l[king]
+	king_loc = square_lookup(board, king)
 	for letter in letters:
 		for num in range(1, 9):
 			address = letter + str(num)
-			if lookup(board, address)[0] == opp_color:
-				if king_loc in get_possible_moves(board, letter, num):
-					return True
+			val = lookup(board, address)
+			if val:
+				if val[0] == opp_color:
+					if king_loc in get_possible_moves(board, letter, num):
+						return True
 	return False
 
 # Iterate through every single potential move.
 # if still in check after every one of those moves,
 # then it is checkmate.
-def is_mated(board, r_l, white):
+def is_mated(board, white):
 	color = 'w' if white else 'b'
 	for letter in letters:
 		for num in range(1, 9):
@@ -285,10 +311,10 @@ def is_mated(board, r_l, white):
 				for move in get_possible_moves(board, letter, num):
 					test_board = copy.copy(board)
 					b = move(test_board, address, move)
-					if not in_check(b, r_l, white):
+					if not in_check(b, white):
 						return False
 	return True
-	
+
 
 def play_computer():
 	pass
@@ -297,13 +323,15 @@ def play_opponent():
 	pass
 
 
-a, b = initialize_board()
-
-a['e'][2] = ""
-a['e'][4] = 'wp'
+a = initialize_board()
+a = move(a, 'e2', 'e4')
+a = move(a, 'e7', 'e6')
+a = move(a, 'f2', 'f4')
+a = move(a, 'd8', 'h4')
 print_board(a)
 
-print get_possible_moves(a, 'e', 1, "", "")
+print in_check(a, True)
+
 
 
 
