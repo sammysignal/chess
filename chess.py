@@ -325,6 +325,16 @@ def in_check(board, white):
 						return True
 	return False
 
+# Gets legal moves for a piece on a particular square.
+def get_legal_moves(board, white, sq_let, sq_num, ep=None):
+	result = []
+	pos = sq_let + str(sq_num)
+	for m in get_possible_moves(board, sq_let, sq_num, ep):
+		new_board = move(copy.deepcopy(board), pos, m)
+		if not in_check(new_board, white):
+			result.append(m)
+	return result
+
 # Iterate through every single potential move.
 # if still in check after every one of those moves,
 # then it is checkmate.
@@ -342,18 +352,6 @@ def is_mated(board, white, ep=None):
 						if not in_check(b, white):
 							return False
 	return True
-
-
-
-# Gets legal moves for a piece on a particular square.
-def get_legal_moves(board, white, sq_let, sq_num, ep=None):
-	result = []
-	pos = sq_let + str(sq_num)
-	for m in get_possible_moves(board, sq_let, sq_num, ep):
-		new_board = move(copy.deepcopy(board), pos, m)
-		if not in_check(new_board, white):
-			result.append(m)
-	return result
 
 def play_computer():
 	pass
@@ -478,11 +476,13 @@ def test_get_legal_moves():
 	a['d'][4] = 'wp'
 	a['f'][5] = 'bR'
 	a['h'][8] = 'bK'
-	print_board(a)
 	assert(get_legal_moves(a, True, 'd', 4) == ['d5'])
 	a = move(a, 'f5', 'f4')
-	print_board(a)
 	assert(get_legal_moves(a, True, 'd', 4) == [])
+
+	# Can't move a piece if still in check afterwards:
+	a = move(a, 'd4', 'b4')
+	assert(get_legal_moves(a, True, 'b', 4) == [])
 
 def run_tests():
 	test_get_moves_pawn()
