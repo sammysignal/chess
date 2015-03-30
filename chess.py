@@ -35,9 +35,12 @@ def initialize_board():
 def square_is_black(let, num):
 	return (((ord(let) + num) % 2) == 1)
 
+# Given a square, returns the piece that is on it.
 def lookup(board, square):
 	return board[square[0]][int(square[1])]
 
+# Given a piece, returns the square it's on. Works for pawns
+# when there is only one left, but please don't.
 def square_lookup(board, piece):
 	pawns = 0
 	pawn_loc = ''
@@ -118,10 +121,6 @@ def can_take_on(board, sq_let, sq_num, white):
 			return False
 		else:
 			return True
-
-# Where a given piece could move if there were
-# no other pieces on the board
-#   def get_theoretical_piece_moves(board, sq_num, sq_let):
 
 # Gets possible moves, disregarding check. requires a prev
 # (previous move location) to check for en passant.
@@ -215,9 +214,8 @@ def get_possible_moves(board, sq_let, sq_num, ep=None):
 		return moveable_squares
 
 	# Same as all of the moves a rook and a bishop combined could make.
-	# a pretty chessy solution.
 	elif p == 'Q':
-		b = board
+		b = copy.deepcopy(board)
 		symbol = 'w' if white_turn else 'b'
 		b[sq_let][sq_num] = symbol + 'R'
 		r_moves = get_possible_moves(b, sq_let, sq_num)
@@ -359,6 +357,7 @@ def play_opponent():
 
 
 def test_get_moves_pawn():
+	# Test for white
 	a = initialize_board()
 	poss = get_possible_moves(a, 'e', 2)
 	assert(set(poss) == set(['e3', 'e4']))
@@ -370,6 +369,21 @@ def test_get_moves_pawn():
 	poss = get_possible_moves(a, 'e', 5, 'd5')
 	assert(set(poss) == set(['d6', 'e6']))
 
+	# Test for black
+	a = initialize_board()
+	poss = get_possible_moves(a, 'e', 7)
+	assert(set(poss) == set(['e6', 'e5']))
+	a = move(a, 'e7', 'e5')
+	poss = get_possible_moves(a, 'e', 5)
+	assert(poss == ['e4'])
+	a = move(a, 'e5', 'e4')
+	a = move(a, 'd2', 'd4')
+	a = move(a, 'f2', 'f4')
+	poss = get_possible_moves(a, 'e', 4, 'd4')
+	assert(set(poss) == set(['d3', 'e3']))
+	poss = get_possible_moves(a, 'e', 4, 'f4')
+	assert(set(poss) == set(['f3', 'e3']))
+	
 def test_get_moves_knight():
 	a = initialize_board()
 	poss = get_possible_moves(a, 'b', 1)
@@ -392,7 +406,44 @@ def test_get_moves_bishop():
 	poss = get_possible_moves(a, 'c', 4)
 	assert(set(poss) == set(['d5', 'e6', 'f7', 'd3', 'e2', 'f1', 'b3', 'b5', 'a6']))
 
+def test_get_moves_rook():
+	a = initialize_board()
+	poss = get_possible_moves(a, 'a', 1)
+	assert(poss == [])
+	a = move(a, 'a2', 'a4')
+	poss = get_possible_moves(a, 'a', 1)
+	assert(set(poss) == set(['a2', 'a3']))
+	a = move(a, 'a1', 'c4')
+	poss = get_possible_moves(a, 'c', 4)
+	assert(set(poss) == set(['c3', 'c5', 'c6', 'c7', 'b4', 'd4', 'e4', 'f4', 'g4', 'h4']))
 
+def test_get_moves_queen():
+	a = initialize_board()
+	poss = get_possible_moves(a, 'd', 1)
+	assert(poss == [])
+	a = move(a, 'c2', 'c4')
+	poss = get_possible_moves(a, 'd', 1)
+	assert(set(poss) == set(['c2', 'b3', 'a4']))
+	a = move(a, 'd1', 'c2')
+	poss = get_possible_moves(a, 'c', 2)
+	assert(set(poss) == set(['c3', 'd3', 'e4', 'f5', 'g6', 'h7', 'd1', 'b3', 'a4']))
+
+def test_get_moves_king():
+	a = initialize_board()
+	poss = get_possible_moves(a, 'e', 1)
+	assert(poss == [])
+	a = move(a, 'e2', 'e4')
+	poss = get_possible_moves(a, 'e', 1)
+	assert(poss == ['e2'])
+	a = move(a, 'e1', 'e3')
+	poss = get_possible_moves(a, 'e', 3)
+	assert(set(poss) == set(['d4', 'f4', 'f3', 'e2', 'd3']))
+	a = move(a, 'e3', 'g5')
+	a = move(a, 'g7', 'g6')
+	poss = get_possible_moves(a, 'g', 5)
+	assert(set(poss) == set(['f6', 'g6', 'h6', 'h5', 'h4', 'g4', 'f5', 'f4']))
+
+# Test if mated with four move checkmate
 def test_is_mated():
 	a = initialize_board()
 	a = move(a, 'f2', 'f4')
@@ -415,6 +466,9 @@ def run_tests():
 	test_get_moves_pawn()
 	test_get_moves_knight()
 	test_get_moves_bishop()
+	test_get_moves_rook()
+	test_get_moves_queen()
+	test_get_moves_king()
 	test_is_mated()
 	print "All tests passed."
 
