@@ -60,8 +60,6 @@ def square_lookup(board, piece):
 			raise Exception("There are multiple pawns, you twat")
 	else:
 		return ""
-		
-
 
 
 def print_board(board):
@@ -376,6 +374,21 @@ def test_get_moves_knight():
 	a = move(a, 'b1', 'c3')
 	poss = get_possible_moves(a, 'c', 3)
 	assert(set(poss) == set(['a4', 'b5', 'd5', 'e4', 'b1']))
+	a = move(a, 'c3', 'd5')
+	poss = get_possible_moves(a, 'd', 5)
+	print_board(a)
+	assert(set(poss) == set(['e7', 'f6', 'f4', 'e3', 'c3', 'b4', 'b6', 'c7']))
+
+def test_get_moves_bishop():
+	a = initialize_board()
+	poss = get_possible_moves(a, 'f', 1)
+	assert(poss == [])
+	a = move(a, 'e2', 'e4')
+	poss = get_possible_moves(a, 'f', 1)
+	assert(set(poss) == set(['e2', 'd3', 'c4', 'b5', 'a6']))
+	a = move(a, 'f1', 'c4')
+	poss = get_possible_moves(a, 'c', 4)
+	assert(set(poss) == set(['d5', 'e6', 'f7', 'd3', 'e2', 'f1', 'b3', 'b5', 'a6']))
 
 
 def test_is_mated():
@@ -399,6 +412,7 @@ def test_is_mated():
 def run_tests():
 	test_get_moves_pawn()
 	test_get_moves_knight()
+	test_get_moves_bishop()
 	test_is_mated()
 	print "All tests passed."
 
