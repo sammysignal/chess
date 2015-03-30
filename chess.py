@@ -344,6 +344,17 @@ def is_mated(board, white, ep=None):
 	return True
 
 
+
+# Gets legal moves for a piece on a particular square.
+def get_legal_moves(board, white, sq_let, sq_num, ep=None):
+	result = []
+	pos = sq_let + str(sq_num)
+	for m in get_possible_moves(board, sq_let, sq_num, ep):
+		new_board = move(copy.deepcopy(board), pos, m)
+		if not in_check(new_board, white):
+			result.append(m)
+	return result
+
 def play_computer():
 	pass
 
@@ -461,6 +472,17 @@ def test_is_mated():
 	assert(in_check(a, True) == True)
 	assert(is_mated(a, True) == True)
 
+def test_get_legal_moves():
+	a = empty_board()
+	a['c'][4] = 'wK'
+	a['d'][4] = 'wp'
+	a['f'][5] = 'bR'
+	a['h'][8] = 'bK'
+	print_board(a)
+	assert(get_legal_moves(a, True, 'd', 4) == ['d5'])
+	a = move(a, 'f5', 'f4')
+	print_board(a)
+	assert(get_legal_moves(a, True, 'd', 4) == [])
 
 def run_tests():
 	test_get_moves_pawn()
@@ -470,6 +492,7 @@ def run_tests():
 	test_get_moves_queen()
 	test_get_moves_king()
 	test_is_mated()
+	test_get_legal_moves()
 	print "All tests passed."
 
 
