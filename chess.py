@@ -1,4 +1,4 @@
-import sys, copy
+import sys, copy, random, time
 
 letters = "abcdefgh"
 pieces = ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
@@ -124,7 +124,6 @@ def can_take_on(board, sq_let, sq_num, white):
 
 # Gets possible moves, disregarding check. requires a prev
 # (previous move location) to check for en passant.
-
 def get_possible_moves(board, sq_let, sq_num, ep=None):
 	piece = board[sq_let][sq_num]
 	white_turn = (piece[0] == 'w')
@@ -295,11 +294,11 @@ def get_possible_moves(board, sq_let, sq_num, ep=None):
 					if val:
 						if val[0] == 'w':
 							moveable_squares.append(front_right)
-				right_neighbor = chr(ord(sq_let) - 1) + str(sq_num)
-				left_neighbor = chr(ord(sq_let) + 1) + str(sq_num)
 
 				# En passant
 				if ep:
+					right_neighbor = chr(ord(sq_let) - 1) + str(sq_num)
+					left_neighbor = chr(ord(sq_let) + 1) + str(sq_num)
 					if ep == right_neighbor:
 						moveable_squares.append(front_right)
 					if ep == left_neighbor:
@@ -352,6 +351,47 @@ def is_mated(board, white, ep=None):
 						if not in_check(b, white):
 							return False
 	return True
+
+# gets all legal moves considering every piece on the board.
+def get_all_legal_moves(board, white, ep):
+	moves = []
+	for letter in letters:
+		for num in range(1, 9):
+			piece = board[letter][num]
+			if piece:
+				piece_color = (True if (piece[0] == 'w') else False)
+				if (piece_color == white):
+					for m in get_legal_moves(board, white, letter, num, ep):
+						moves.append([(letter + str(num)), m])
+	return moves
+	# moves ~= [['a2', 'a3'], ['b1', 'd3']]
+
+# Random game without en passants or castles.
+# Maybe make the board an object with last move
+# attribute?
+def watch_random_game():
+	board = initialize_board()
+	white = True
+	ep = None
+	while True:
+		print(board)
+		if is_mated(board, white, ep):
+			winner = 'white' if white else 'black'
+			print(winner + " wins!")
+			return
+		possible_moves = get_all_legal_moves(board, white, ep)
+		if possible_moves == []:
+			print("Stalemate!")
+		random_move = random.choice(possible_moves)
+		print(random_move)
+		board = move(board, random_move[0], random_move[1])
+		print_board(board)
+		time.sleep(0.2)
+		white = not white
+
+
+def get_move_white(board, white):
+	pass
 
 def play_computer():
 	pass
@@ -469,6 +509,10 @@ def test_is_mated():
 	a = move(a, 'd8', 'h4')
 	assert(in_check(a, True) == True)
 	assert(is_mated(a, True) == True)
+	a = move(a, 'g1', 'f3')
+	assert(in_check(a, True) == True)
+	assert(is_mated(a, True) == False)
+	assert(set(get_legal_moves(a, True, 'f', 3)) == set(['h4']))
 
 # A move is considered legal if after doing it
 # the player is no longer in check.
@@ -498,8 +542,13 @@ def run_tests():
 	print "All tests passed."
 
 
-run_tests()
+# run_tests()
 
+# watch_random_game()
 
+def fix_bug():
+	board = {'a': {1: 'wR', 2: '', 3: 'wN', 4: 'wp', 5: 'bp', 6: '', 7: 'bR', 8: ''}, 'c': {1: '', 2: '', 3: '', 4: 'wB', 5: '', 6: '', 7: 'bp', 8: ''}, 'b': {1: '', 2: '', 3: '', 4: '', 5: 'bp', 6: '', 7: '', 8: 'bK'}, 'e': {1: '', 2: '', 3: '', 4: '', 5: '', 6: '', 7: '', 8: ''}, 'd': {1: '', 2: '', 3: '', 4: '', 5: 'wp', 6: '', 7: 'wp', 8: ''}, 'g': {1: '', 2: '', 3: '', 4: '', 5: 'bp', 6: '', 7: '', 8: ''}, 'f': {1: 'wK', 2: '', 3: 'wp', 4: 'bp', 5: '', 6: '', 7: '', 8: 'bQ'}, 'h': {1: '', 2: '', 3: '', 4: 'wp', 5: '', 6: 'bB', 7: '', 8: ''}}
+	print_board(board)
+	is_mated(board, False, None)
 
-
+fix_bug()
