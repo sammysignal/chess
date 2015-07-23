@@ -93,15 +93,29 @@ def print_board(board):
 	buf = buf + '\n'
 	sys.stdout.write(buf)
 
+# Gets a promotion piece from the user
+def promote(white, sq):
+	color = 'w' if white else 'b'
+	print "Please select a promotion piece for " + ("white" if white else "black") + " on square " + sq
+	res = raw_input().upper()
+	if res in 'QRBN':
+		return (color + res.lower())
+	print 'Not a valid promotion.'
+	return promote(white)
+
+
 # Makes move and returns new board. completely disregards check or 
-# color rules.
+# color rules, but includes promote
 def move(board, fro, to):
 	p = board[fro[0]][int(fro[1])]
 	if not p:
 		raise Exception("No piece to move on this square.")
+	new_piece = None
+	if (p[1] == 'p') and (to[1] == '1' or to[1] == '8'):
+		new_piece = promote((True if p[0] == 'w' else False), to)
 	new_board = copy.deepcopy(board)
 	new_board[fro[0]][int(fro[1])] = ""
-	new_board[to[0]][int(to[1])] = p
+	new_board[to[0]][int(to[1])] = (new_piece if new_piece else p)
 	return new_board
 
 # takes a board, a turn, and a square. If the piece on the square
