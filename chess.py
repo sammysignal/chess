@@ -237,14 +237,16 @@ def get_possible_moves(board, sq_let, sq_num, ep=None):
 		if white_turn:
 			if (sq_num + 1) in range(1, 9):
 				#Directly forward
-				ahead = board[sq_let][sq_num + 1]
-				if not ahead:
-					moveable_squares.append(sq_let + str(sq_num + 1))
+				if (sq_num + 1) in range(1, 9):
+					ahead = board[sq_let][sq_num + 1]
+					if not ahead:
+						moveable_squares.append(sq_let + str(sq_num + 1))
 
 				# Two squares forward, if from first rank
-				two_ahead = board[sq_let][sq_num + 2]
-				if (not ahead) and (not two_ahead) and (sq_num == 2):
-					moveable_squares.append(sq_let + str(sq_num + 2))
+				if (sq_num + 2) in range(1, 9):
+					two_ahead = board[sq_let][sq_num + 2]
+					if (not ahead) and (not two_ahead) and (sq_num == 2):
+						moveable_squares.append(sq_let + str(sq_num + 2))
 
 				# Taking diagonally
 				front_left = chr(ord(sq_let) - 1) + str(sq_num + 1)
@@ -272,14 +274,16 @@ def get_possible_moves(board, sq_let, sq_num, ep=None):
 		else:
 			if (sq_num - 1) in range(1, 9):
 				#Directly forward
-				ahead = board[sq_let][sq_num - 1]
-				if not ahead:
-					moveable_squares.append(sq_let + str(sq_num - 1))
+				if (sq_num - 1) in range(1, 9):
+					ahead = board[sq_let][sq_num - 1]
+					if not ahead:
+						moveable_squares.append(sq_let + str(sq_num - 1))
 				
 				# Two squares forward, if from first rank
-				two_ahead = board[sq_let][sq_num - 2]
-				if (not ahead) and (not two_ahead) and (sq_num == 7):
-					moveable_squares.append(sq_let + str(sq_num - 2))
+				if (sq_num - 2) in range(1, 9):
+					two_ahead = board[sq_let][sq_num - 2]
+					if (not ahead) and (not two_ahead) and (sq_num == 7):
+						moveable_squares.append(sq_let + str(sq_num - 2))
 
 				# Taking diagonally
 				front_left = chr(ord(sq_let) + 1) + str(sq_num - 1)
@@ -544,11 +548,11 @@ def run_tests():
 
 # run_tests()
 
-# watch_random_game()
+watch_random_game()
 
-def fix_bug():
-	board = {'a': {1: 'wR', 2: '', 3: 'wN', 4: 'wp', 5: 'bp', 6: '', 7: 'bR', 8: ''}, 'c': {1: '', 2: '', 3: '', 4: 'wB', 5: '', 6: '', 7: 'bp', 8: ''}, 'b': {1: '', 2: '', 3: '', 4: '', 5: 'bp', 6: '', 7: '', 8: 'bK'}, 'e': {1: '', 2: '', 3: '', 4: '', 5: '', 6: '', 7: '', 8: ''}, 'd': {1: '', 2: '', 3: '', 4: '', 5: 'wp', 6: '', 7: 'wp', 8: ''}, 'g': {1: '', 2: '', 3: '', 4: '', 5: 'bp', 6: '', 7: '', 8: ''}, 'f': {1: 'wK', 2: '', 3: 'wp', 4: 'bp', 5: '', 6: '', 7: '', 8: 'bQ'}, 'h': {1: '', 2: '', 3: '', 4: 'wp', 5: '', 6: 'bB', 7: '', 8: ''}}
-	print_board(board)
-	is_mated(board, False, None)
+# def fix_bug():
+# 	board = {'a': {1: 'wR', 2: '', 3: 'wN', 4: 'wp', 5: 'bp', 6: '', 7: 'bR', 8: ''}, 'c': {1: '', 2: '', 3: '', 4: 'wB', 5: '', 6: '', 7: 'bp', 8: ''}, 'b': {1: '', 2: '', 3: '', 4: '', 5: 'bp', 6: '', 7: '', 8: 'bK'}, 'e': {1: '', 2: '', 3: '', 4: '', 5: '', 6: '', 7: '', 8: ''}, 'd': {1: '', 2: '', 3: '', 4: '', 5: 'wp', 6: '', 7: 'wp', 8: ''}, 'g': {1: '', 2: '', 3: '', 4: '', 5: 'bp', 6: '', 7: '', 8: ''}, 'f': {1: 'wK', 2: '', 3: 'wp', 4: 'bp', 5: '', 6: '', 7: '', 8: 'bQ'}, 'h': {1: '', 2: '', 3: '', 4: 'wp', 5: '', 6: 'bB', 7: '', 8: ''}}
+# 	print_board(board)
+# 	is_mated(board, False, None)
 
-fix_bug()
+# fix_bug()
