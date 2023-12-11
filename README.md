@@ -1,2 +1,2 @@
 # chess
-a python chess playing algorithm.
+A command-line chess playing algorithm built in python.
